@@ -3,7 +3,7 @@ import "./SnakeGame.css";
 import GridSettingForm from "./GridSettingForm";
 import { Direction, GridSize, Position } from "../types";
 
-const GRID_SIZE_DEFAULT: GridSize = { width: 20, height: 30 };
+const GRID_SIZE_DEFAULT: GridSize = { width: 15, height: 20 };
 const CELL_SIZE = 20;
 const INITIAL_SNAKE: Position[] = [
   { x: 2, y: 0 },
@@ -18,6 +18,7 @@ const SnakeGame: React.FC = () => {
   const [bait, setBait] = useState<Position | undefined>();
   const [direction, setDirection] = useState<Direction | "">("");
   const [gameOver, setGameOver] = useState<boolean>(false);
+  const [score, setScore] = useState<number>(0);
 
   const generateBait = () => {
     return {
@@ -35,6 +36,7 @@ const SnakeGame: React.FC = () => {
     setSnake(INITIAL_SNAKE);
     setBait(generateBait());
     setDirection("");
+    setScore(0);
     setGameOver(() => false);
   };
 
@@ -105,6 +107,7 @@ const SnakeGame: React.FC = () => {
 
         // Check if bail is eaten
         if (head.x === bait.x && head.y === bait.y) {
+          setScore((prev) => prev + 1);
           setBait(generateBait());
         } else {
           newSnake.pop();
@@ -129,6 +132,7 @@ const SnakeGame: React.FC = () => {
   return (
     <div className="game-container">
       <div className="game-header">
+        <h2 className="game-score">Score: {score}</h2>
         <button
           onClick={() => {
             setOpenSetting(true);
@@ -177,10 +181,13 @@ const SnakeGame: React.FC = () => {
       )}
       {gameOver && (
         <div className="game-over">
-          <p>Game Over!</p>
-          <button className="btn-primary" onClick={resetGame}>Play Again</button>
+          <h2>You Lose</h2>
+          <button className="btn-primary" onClick={resetGame}>
+            Play Again
+          </button>
         </div>
       )}
+      
     </div>
   );
 };
