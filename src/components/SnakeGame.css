@@ -15,6 +15,11 @@
   background-size: 20px 20px;
 }
 
+.game-header {
+  height: 40px;
+  margin-bottom: 16px;
+}
+
 .grid-setting-form {
   position: absolute;
   top: 50%;
@@ -24,9 +29,18 @@
   color: white;
   padding: 20px;
   border-radius: 5px;
-  text-align: center;
 }
 
-.grid-setting-form > div {
+.grid-setting-form > div:not(:last-child) {
   margin-bottom: 8px;
+}
+
+.form-label {
+  display: inline-block;
+  width: 120px;
+}
+
+.form-footer {
+  text-align: right;
+  padding-top: 0.5rem;
 }
