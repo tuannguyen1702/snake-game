@@ -16,7 +16,8 @@ const SnakeGame: React.FC = () => {
   const [openSetting, setOpenSetting] = useState(false);
   const [snake, setSnake] = useState<Position[]>(INITIAL_SNAKE);
   const [bait, setBait] = useState<Position | undefined>();
-  const [direction, setDirection] = useState<Direction | undefined>();
+  const [direction, setDirection] = useState<Direction | "">("");
+  const [gameOver, setGameOver] = useState<boolean>(false);
 
   const generateBait = () => {
     return {
@@ -33,6 +34,8 @@ const SnakeGame: React.FC = () => {
   const resetGame = () => {
     setSnake(INITIAL_SNAKE);
     setBait(generateBait());
+    setDirection("");
+    setGameOver(() => false);
   };
 
   const handleKeyPress = useCallback(
@@ -56,7 +59,7 @@ const SnakeGame: React.FC = () => {
   );
 
   useEffect(() => {
-    if (!bait || !direction) return;
+    if (!bait || !direction || gameOver) return;
 
     const moveSnake = setInterval(() => {
       setSnake((prevSnake) => {
@@ -85,6 +88,7 @@ const SnakeGame: React.FC = () => {
           head.y < 0 ||
           head.y >= gridSize.height
         ) {
+          setGameOver(true);
           return prevSnake;
         }
 
@@ -93,6 +97,7 @@ const SnakeGame: React.FC = () => {
             (position) => position.x === head.x && position.y === head.y
           )
         ) {
+          setGameOver(true);
           return prevSnake;
         }
 
@@ -110,7 +115,7 @@ const SnakeGame: React.FC = () => {
     }, 150);
 
     return () => clearInterval(moveSnake);
-  }, [direction, bait]);
+  }, [direction, bait, gameOver]);
 
   useEffect(() => {
     resetGame();
@@ -169,6 +174,12 @@ const SnakeGame: React.FC = () => {
           onSubmit={handleSetGridSize}
           onCancel={() => setOpenSetting(false)}
         />
+      )}
+      {gameOver && (
+        <div className="game-over">
+          <p>Game Over!</p>
+          <button className="btn-primary" onClick={resetGame}>Play Again</button>
+        </div>
       )}
     </div>
   );
