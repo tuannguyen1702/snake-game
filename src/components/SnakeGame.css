@@ -37,10 +37,37 @@
 
 .form-label {
   display: inline-block;
-  width: 120px;
+  width: 100px;
 }
 
 .form-footer {
   text-align: right;
   padding-top: 0.5rem;
+}
+
+.snake {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background-color: #00cc00;
+  border: 1px solid #00cc00;
+}
+
+.snake:first-child {
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+.snake:last-child {
+  border-top-left-radius: 20px;
+  border-bottom-left-radius: 20px;
+}
+
+.bait {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background-color: #ff0000;
+  border-radius: 50%;
+  transition: all 0.2s ease;
 }
