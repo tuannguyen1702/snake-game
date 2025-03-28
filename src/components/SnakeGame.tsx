@@ -1,10 +1,9 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import "./SnakeGame.css";
 import GridSettingForm from "./GridSettingForm";
-import { GridSize, Position } from "../types";
+import { Direction, GridSize, Position } from "../types";
 
-const GRID_W = 20;
-const GRID_H = 30;
+const GRID_SIZE_DEFAULT: GridSize = { width: 20, height: 30 };
 const CELL_SIZE = 20;
 const INITIAL_SNAKE: Position[] = [
   { x: 2, y: 0 },
@@ -13,25 +12,114 @@ const INITIAL_SNAKE: Position[] = [
 ];
 
 const SnakeGame: React.FC = () => {
-  const [gridW, setGridW] = useState(GRID_W);
-  const [gridH, setGridH] = useState(GRID_H);
+  const [gridSize, setGridSize] = useState(GRID_SIZE_DEFAULT);
   const [openSetting, setOpenSetting] = useState(false);
-
   const [snake, setSnake] = useState<Position[]>(INITIAL_SNAKE);
-  const [bait, setBait] = useState<Position>(generateBait());
+  const [bait, setBait] = useState<Position | undefined>();
+  const [direction, setDirection] = useState<Direction | undefined>();
 
-  function generateBait(): Position {
+  const generateBait = () => {
     return {
-      x: Math.floor(Math.random() * gridW),
-      y: Math.floor(Math.random() * gridH),
+      x: Math.floor(Math.random() * gridSize.width),
+      y: Math.floor(Math.random() * gridSize.height),
     };
-  }
+  };
 
-  const setGridSize = (gridSize: GridSize) => {
-    setGridW(gridSize.width);
-    setGridH(gridSize.height);
+  const handleSetGridSize = (gridSize: GridSize) => {
+    setGridSize(gridSize);
     setOpenSetting(false);
   };
+
+  const resetGame = () => {
+    setSnake(INITIAL_SNAKE);
+    setBait(generateBait());
+  };
+
+  const handleKeyPress = useCallback(
+    (e: KeyboardEvent) => {
+      switch (e.key) {
+        case "ArrowUp":
+          if (direction !== "DOWN") setDirection("UP");
+          break;
+        case "ArrowDown":
+          if (direction !== "UP") setDirection("DOWN");
+          break;
+        case "ArrowLeft":
+          if (direction !== "RIGHT") setDirection("LEFT");
+          break;
+        case "ArrowRight":
+          if (direction !== "LEFT") setDirection("RIGHT");
+          break;
+      }
+    },
+    [direction]
+  );
+
+  useEffect(() => {
+    if (!bait || !direction) return;
+
+    const moveSnake = setInterval(() => {
+      setSnake((prevSnake) => {
+        const newSnake = [...prevSnake];
+        const head = { ...newSnake[0] };
+
+        switch (direction) {
+          case "UP":
+            head.y--;
+            break;
+          case "DOWN":
+            head.y++;
+            break;
+          case "LEFT":
+            head.x--;
+            break;
+          case "RIGHT":
+            head.x++;
+            break;
+        }
+
+        // Check collision with walls
+        if (
+          head.x < 0 ||
+          head.x >= gridSize.width ||
+          head.y < 0 ||
+          head.y >= gridSize.height
+        ) {
+          return prevSnake;
+        }
+
+        if (
+          newSnake.some(
+            (position) => position.x === head.x && position.y === head.y
+          )
+        ) {
+          return prevSnake;
+        }
+
+        newSnake.unshift(head);
+
+        // Check if bail is eaten
+        if (head.x === bait.x && head.y === bait.y) {
+          setBait(generateBait());
+        } else {
+          newSnake.pop();
+        }
+
+        return newSnake;
+      });
+    }, 150);
+
+    return () => clearInterval(moveSnake);
+  }, [direction, bait]);
+
+  useEffect(() => {
+    resetGame();
+  }, [gridSize]);
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyPress);
+    return () => window.removeEventListener("keydown", handleKeyPress);
+  }, [handleKeyPress]);
 
   return (
     <div className="game-container">
@@ -47,8 +135,8 @@ const SnakeGame: React.FC = () => {
       <div
         className="game-board"
         style={{
-          width: gridW * CELL_SIZE + 3,
-          height: gridH * CELL_SIZE + 3,
+          width: gridSize.width * CELL_SIZE + 3,
+          height: gridSize.height * CELL_SIZE + 3,
         }}
       >
         <div className="snake-container">
@@ -64,20 +152,21 @@ const SnakeGame: React.FC = () => {
           ))}
         </div>
 
-        <div
-          className="bait"
-          style={{
-            left: bait.x * CELL_SIZE,
-            top: bait.y * CELL_SIZE,
-          }}
-        />
+        {bait && (
+          <div
+            className="bait"
+            style={{
+              left: bait.x * CELL_SIZE,
+              top: bait.y * CELL_SIZE,
+            }}
+          />
+        )}
       </div>
 
       {openSetting && (
         <GridSettingForm
-          gridWidth={gridW}
-          gridHeight={gridH}
-          onSubmit={setGridSize}
+          gridSize={gridSize}
+          onSubmit={handleSetGridSize}
           onCancel={() => setOpenSetting(false)}
         />
       )}

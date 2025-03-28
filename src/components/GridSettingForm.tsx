@@ -3,20 +3,18 @@ import "./SnakeGame.css"; // Vẫn dùng CSS chung
 import { GridSize } from "../types";
 
 interface GridSettingFormProps {
-  gridWidth: number;
-  gridHeight: number;
+  gridSize: GridSize;
   onSubmit: (gridSize: GridSize) => void;
   onCancel?: () => void;
 }
 
 const GridSettingForm: React.FC<GridSettingFormProps> = ({
-  gridWidth,
-  gridHeight,
+  gridSize,
   onSubmit,
   onCancel,
 }) => {
-  const [gridW, setGridW] = useState(gridWidth);
-  const [gridH, setGridH] = useState(gridHeight);
+  const [gridW, setGridW] = useState(gridSize.width);
+  const [gridH, setGridH] = useState(gridSize.height);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
