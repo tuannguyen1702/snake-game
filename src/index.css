@@ -39,6 +39,10 @@ h1 {
   line-height: 1.1;
 }
 
+h4, h3, h2, h1 {
+  margin-top: 0;
+}
+
 
 button + button {
   margin-left: 0.5rem;

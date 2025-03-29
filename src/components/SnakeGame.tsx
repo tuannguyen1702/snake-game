@@ -268,6 +268,7 @@ const SnakeGame: React.FC = () => {
         <GridSettingForm
           gridSize={gridSize}
           maxGridSize={maxGridSize}
+          minGridSize={GRID_SIZE_MIN}
           onSubmit={handleSetGridSize}
           onCancel={() => setOpenSetting(false)}
         />

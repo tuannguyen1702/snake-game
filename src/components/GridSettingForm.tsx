@@ -27,6 +27,7 @@ const GridSettingForm: React.FC<GridSettingFormProps> = ({
 
   return (
     <form onSubmit={handleSubmit} className="grid-setting-form">
+      <h4>Update Grid Size</h4>
       <div>
         <label className="form-label">Width: </label>
         <input
