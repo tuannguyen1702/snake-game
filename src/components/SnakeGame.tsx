@@ -23,6 +23,7 @@ const SnakeGame: React.FC = () => {
   const [gameOver, setGameOver] = useState<boolean>(false);
   const [youWin, setYouWin] = useState<boolean>(false);
   const [score, setScore] = useState<number>(0);
+  const [showHelp, setShowHelp] = useState<boolean>(true);
 
   const generateBait = (newSnake: Position[]) => {
     if (newSnake.length >= gridSize.height * gridSize.width) return;
@@ -62,6 +63,9 @@ const SnakeGame: React.FC = () => {
 
   const handleKeyPress = useCallback(
     (e: KeyboardEvent) => {
+
+      if(openSetting) return;
+
       let newDirection: Direction | null = null;
 
       switch (e.key) {
@@ -79,11 +83,13 @@ const SnakeGame: React.FC = () => {
           break;
       }
 
-     
       if (newDirection) {
         setDirection(newDirection);
 
-        if (!isStarted) setIsStarted(true);
+        if (!isStarted) {
+          setIsStarted(true);
+          setShowHelp(false);
+        }
       }
     },
     [direction]
@@ -163,13 +169,24 @@ const SnakeGame: React.FC = () => {
   return (
     <div className="game-container">
       <div className="game-header">
-        <h2 className="game-score">Score: {score}</h2>
+        <h3 className="game-score">Score: {score}</h3>
         <button
+          className="btn-link"
           onClick={() => {
-            setOpenSetting(true);
+            setShowHelp(true);
+            resetGame();
           }}
         >
-          Setting
+          <img height={20} src="/src/assets/help.svg" />
+        </button>
+        <button
+          className="btn-link"
+          onClick={() => {
+            setOpenSetting(true);
+            resetGame();
+          }}
+        >
+          <img height={20} src="/src/assets/settings.svg" />
         </button>
       </div>
       <div
@@ -227,6 +244,12 @@ const SnakeGame: React.FC = () => {
           <button className="btn-primary" onClick={resetGame}>
             Play Again
           </button>
+        </div>
+      )}
+
+      {showHelp && (
+        <div className="game-help">
+          <img width={100} src="/src/assets/keys.svg" />
         </div>
       )}
     </div>

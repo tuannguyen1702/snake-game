@@ -109,3 +109,16 @@
   text-align: center;
   min-width: 205px;
 }
+
+.game-help {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  text-align: center;
+  max-width: 300px;
+}

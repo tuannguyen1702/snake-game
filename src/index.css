@@ -55,6 +55,7 @@ button, input {
   transition: border-color 0.25s;
 }
 
+
 button {
   padding: 0.5em 1em;
 }
@@ -71,9 +72,23 @@ button:focus-visible {
   background-color: #4488fa;
 }
 
+.btn-link {
+  background-color: transparent;
+  border: none;
+  padding: 0;
+}
+
+.btn-link:focus, .btn-link:hover, .btn-link:focus-visible  {
+  background-color: transparent;
+  outline: transparent;
+  border: none;
+  color: #333;
+}
+
+
 input {
   padding: 0.5em;
-  min-width: 50px;
+  min-width: 55px;
 }
 
 
