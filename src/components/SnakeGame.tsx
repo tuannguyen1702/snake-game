@@ -5,6 +5,7 @@ import { Direction, GridSize, Position } from "../types";
 
 const GRID_SIZE_DEFAULT: GridSize = { width: 15, height: 20 };
 const CELL_SIZE = 20;
+const DIRECTION_DEFAULT = "RIGHT";
 const INITIAL_SNAKE: Position[] = [
   { x: 2, y: 0 },
   { x: 1, y: 0 },
@@ -16,7 +17,8 @@ const SnakeGame: React.FC = () => {
   const [openSetting, setOpenSetting] = useState(false);
   const [snake, setSnake] = useState<Position[]>(INITIAL_SNAKE);
   const [bait, setBait] = useState<Position | undefined>();
-  const [direction, setDirection] = useState<Direction | "">("");
+  const [direction, setDirection] = useState<Direction>(DIRECTION_DEFAULT);
+  const [isStarted, setIsStarted] = useState<boolean>(false);
 
   const [gameOver, setGameOver] = useState<boolean>(false);
   const [youWin, setYouWin] = useState<boolean>(false);
@@ -51,7 +53,8 @@ const SnakeGame: React.FC = () => {
   const resetGame = () => {
     setSnake(INITIAL_SNAKE);
     setBait(generateBait(INITIAL_SNAKE));
-    setDirection("");
+    setDirection(DIRECTION_DEFAULT);
+    setIsStarted(false);
     setScore(0);
     setGameOver(false);
     setYouWin(false);
@@ -59,26 +62,35 @@ const SnakeGame: React.FC = () => {
 
   const handleKeyPress = useCallback(
     (e: KeyboardEvent) => {
+      let newDirection: Direction | null = null;
+
       switch (e.key) {
         case "ArrowUp":
-          if (direction !== "DOWN") setDirection("UP");
+          if (direction !== "DOWN") newDirection = "UP";
           break;
         case "ArrowDown":
-          if (direction !== "UP") setDirection("DOWN");
+          if (direction !== "UP") newDirection = "DOWN";
           break;
         case "ArrowLeft":
-          if (direction !== "RIGHT") setDirection("LEFT");
+          if (direction !== "RIGHT") newDirection = "LEFT";
           break;
         case "ArrowRight":
-          if (direction !== "LEFT") setDirection("RIGHT");
+          if (direction !== "LEFT") newDirection = "RIGHT";
           break;
+      }
+
+     
+      if (newDirection) {
+        setDirection(newDirection);
+
+        if (!isStarted) setIsStarted(true);
       }
     },
     [direction]
   );
 
   useEffect(() => {
-    if (!bait || !direction || gameOver || youWin) return;
+    if (!isStarted || !bait || !direction || gameOver || youWin) return;
 
     const moveSnake = setInterval(() => {
       setSnake((prevSnake) => {
@@ -100,7 +112,6 @@ const SnakeGame: React.FC = () => {
             break;
         }
 
-        
         if (
           // Check collision with walls
           head.x < 0 ||
@@ -138,7 +149,7 @@ const SnakeGame: React.FC = () => {
     }, 200);
 
     return () => clearInterval(moveSnake);
-  }, [direction, bait, gameOver, youWin]);
+  }, [direction, bait, gameOver, youWin, isStarted]);
 
   useEffect(() => {
     resetGame();
@@ -174,8 +185,9 @@ const SnakeGame: React.FC = () => {
               key={index}
               className="snake"
               style={{
-                left: position.x * CELL_SIZE,
-                top: position.y * CELL_SIZE,
+                transform: `translate(${position.x * CELL_SIZE}px, ${
+                  position.y * CELL_SIZE
+                }px)`,
               }}
             />
           ))}
@@ -185,8 +197,9 @@ const SnakeGame: React.FC = () => {
           <div
             className="bait"
             style={{
-              left: bait.x * CELL_SIZE,
-              top: bait.y * CELL_SIZE,
+              transform: `translate(${bait.x * CELL_SIZE}px, ${
+                bait.y * CELL_SIZE
+              }px)`,
             }}
           />
         )}
