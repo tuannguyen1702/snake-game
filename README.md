@@ -12,7 +12,7 @@ Follow these steps to set up and run the project locally:
 
 ### 1. Clone the repository
 ```sh
-git clone https://github.com/your-repo/snake-game.git
+git clone https://github.com/tuannguyen1702/snake-game.git
 cd snake-game
 ```
 
