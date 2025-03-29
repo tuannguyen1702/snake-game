@@ -17,14 +17,30 @@ const SnakeGame: React.FC = () => {
   const [snake, setSnake] = useState<Position[]>(INITIAL_SNAKE);
   const [bait, setBait] = useState<Position | undefined>();
   const [direction, setDirection] = useState<Direction | "">("");
+
   const [gameOver, setGameOver] = useState<boolean>(false);
+  const [youWin, setYouWin] = useState<boolean>(false);
   const [score, setScore] = useState<number>(0);
 
-  const generateBait = () => {
-    return {
+  const generateBait = (newSnake: Position[]) => {
+    if (newSnake.length >= gridSize.height * gridSize.width) return;
+
+    const newBaitPosition = {
       x: Math.floor(Math.random() * gridSize.width),
       y: Math.floor(Math.random() * gridSize.height),
     };
+
+    // Check bait position - The bait will be regenerated if it is at the snake's current position.
+    const isOccupied = newSnake.some(
+      (snakeItem) =>
+        snakeItem.x === newBaitPosition.x && snakeItem.y === newBaitPosition.y
+    );
+
+    if (isOccupied) {
+      return generateBait(newSnake);
+    }
+
+    return newBaitPosition;
   };
 
   const handleSetGridSize = (gridSize: GridSize) => {
@@ -34,10 +50,11 @@ const SnakeGame: React.FC = () => {
 
   const resetGame = () => {
     setSnake(INITIAL_SNAKE);
-    setBait(generateBait());
+    setBait(generateBait(INITIAL_SNAKE));
     setDirection("");
     setScore(0);
-    setGameOver(() => false);
+    setGameOver(false);
+    setYouWin(false);
   };
 
   const handleKeyPress = useCallback(
@@ -61,7 +78,7 @@ const SnakeGame: React.FC = () => {
   );
 
   useEffect(() => {
-    if (!bait || !direction || gameOver) return;
+    if (!bait || !direction || gameOver || youWin) return;
 
     const moveSnake = setInterval(() => {
       setSnake((prevSnake) => {
@@ -83,18 +100,14 @@ const SnakeGame: React.FC = () => {
             break;
         }
 
-        // Check collision with walls
+        
         if (
+          // Check collision with walls
           head.x < 0 ||
           head.x >= gridSize.width ||
           head.y < 0 ||
-          head.y >= gridSize.height
-        ) {
-          setGameOver(true);
-          return prevSnake;
-        }
-
-        if (
+          head.y >= gridSize.height ||
+          // Check collision with itself
           newSnake.some(
             (position) => position.x === head.x && position.y === head.y
           )
@@ -105,20 +118,27 @@ const SnakeGame: React.FC = () => {
 
         newSnake.unshift(head);
 
+        // Check you win
+        if (newSnake.length >= gridSize.height * gridSize.width - 1) {
+          setScore((prev) => prev + 1);
+          setYouWin(true);
+          return newSnake;
+        }
+
         // Check if bail is eaten
         if (head.x === bait.x && head.y === bait.y) {
           setScore((prev) => prev + 1);
-          setBait(generateBait());
+          setBait(generateBait(newSnake));
         } else {
           newSnake.pop();
         }
 
         return newSnake;
       });
-    }, 150);
+    }, 200);
 
     return () => clearInterval(moveSnake);
-  }, [direction, bait, gameOver]);
+  }, [direction, bait, gameOver, youWin]);
 
   useEffect(() => {
     resetGame();
@@ -187,7 +207,15 @@ const SnakeGame: React.FC = () => {
           </button>
         </div>
       )}
-      
+
+      {youWin && (
+        <div className="game-win">
+          <h2>You Win!</h2>
+          <button className="btn-primary" onClick={resetGame}>
+            Play Again
+          </button>
+        </div>
+      )}
     </div>
   );
 };
