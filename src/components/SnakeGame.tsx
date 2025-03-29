@@ -3,6 +3,10 @@ import "./SnakeGame.css";
 import GridSettingForm from "./GridSettingForm";
 import { Direction, GridSize, Position } from "../types";
 
+import keys from "../assets/keys.svg";
+import settings from "../assets/settings.svg";
+import help from "../assets/help.svg";
+
 const GRID_SIZE_DEFAULT: GridSize = { width: 15, height: 20 };
 const CELL_SIZE = 20;
 const DIRECTION_DEFAULT = "RIGHT";
@@ -63,8 +67,7 @@ const SnakeGame: React.FC = () => {
 
   const handleKeyPress = useCallback(
     (e: KeyboardEvent) => {
-
-      if(openSetting) return;
+      if (openSetting) return;
 
       let newDirection: Direction | null = null;
 
@@ -177,7 +180,7 @@ const SnakeGame: React.FC = () => {
             resetGame();
           }}
         >
-          <img height={20} src="/src/assets/help.svg" />
+          <img height={20} src={help} />
         </button>
         <button
           className="btn-link"
@@ -186,7 +189,7 @@ const SnakeGame: React.FC = () => {
             resetGame();
           }}
         >
-          <img height={20} src="/src/assets/settings.svg" />
+          <img height={20} src={settings} />
         </button>
       </div>
       <div
@@ -249,7 +252,7 @@ const SnakeGame: React.FC = () => {
 
       {showHelp && (
         <div className="game-help">
-          <img width={100} src="/src/assets/keys.svg" />
+          <img width={100} src={keys} />
         </div>
       )}
     </div>
