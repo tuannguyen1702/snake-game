@@ -8,6 +8,7 @@ import settings from "../assets/settings.svg";
 import help from "../assets/help.svg";
 
 const GRID_SIZE_DEFAULT: GridSize = { width: 15, height: 20 };
+const GRID_SIZE_MIN: GridSize = { width: 5, height: 5 };
 const CELL_SIZE = 20;
 const DIRECTION_DEFAULT = "RIGHT";
 const INITIAL_SNAKE: Position[] = [
@@ -18,6 +19,7 @@ const INITIAL_SNAKE: Position[] = [
 
 const SnakeGame: React.FC = () => {
   const [gridSize, setGridSize] = useState(GRID_SIZE_DEFAULT);
+  const [maxGridSize, setMaxGridSize] = useState<GridSize | undefined>();
   const [openSetting, setOpenSetting] = useState(false);
   const [snake, setSnake] = useState<Position[]>(INITIAL_SNAKE);
   const [bait, setBait] = useState<Position | undefined>();
@@ -30,6 +32,8 @@ const SnakeGame: React.FC = () => {
   const [showHelp, setShowHelp] = useState<boolean>(true);
 
   const generateBait = (newSnake: Position[]) => {
+    // Check if the snake occupies the entire grid (no space for bait)
+    // If true, return undefined to indicate no new bait can be generated
     if (newSnake.length >= gridSize.height * gridSize.width) return;
 
     const newBaitPosition = {
@@ -37,12 +41,13 @@ const SnakeGame: React.FC = () => {
       y: Math.floor(Math.random() * gridSize.height),
     };
 
-    // Check bait position - The bait will be regenerated if it is at the snake's current position.
+    // Check if the new bait position overlaps with any part of the snake
     const isOccupied = newSnake.some(
       (snakeItem) =>
         snakeItem.x === newBaitPosition.x && snakeItem.y === newBaitPosition.y
     );
 
+    // If the position is occupied by the snake, recursively call generateBait to try again
     if (isOccupied) {
       return generateBait(newSnake);
     }
@@ -63,6 +68,27 @@ const SnakeGame: React.FC = () => {
     setScore(0);
     setGameOver(false);
     setYouWin(false);
+  };
+
+  // Function to calculate grid size based on viewport dimensions
+  const updateMaxGridSize = () => {
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+
+    // Calculate max grid size to fit the viewport, leaving padding
+    let maxWidth = Math.floor((viewportWidth - CELL_SIZE - 32) / CELL_SIZE); // 32px padding
+    let maxHeight = Math.floor((viewportHeight - CELL_SIZE - 100) / CELL_SIZE); // 100px for header and padding
+
+    if (maxWidth < GRID_SIZE_MIN.width) maxWidth = GRID_SIZE_MIN.width;
+    if (maxHeight < GRID_SIZE_MIN.height) maxHeight = GRID_SIZE_MIN.height;
+
+    setMaxGridSize({ width: maxWidth, height: maxHeight });
+
+    if (maxWidth < gridSize.width || maxHeight < gridSize.height)
+      setGridSize({
+        width: maxWidth < gridSize.width ? maxWidth : gridSize.width,
+        height: maxHeight < gridSize.height ? maxHeight : gridSize.height,
+      });
   };
 
   const handleKeyPress = useCallback(
@@ -166,8 +192,21 @@ const SnakeGame: React.FC = () => {
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyPress);
-    return () => window.removeEventListener("keydown", handleKeyPress);
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
   }, [handleKeyPress]);
+
+  useEffect(() => {
+    window.addEventListener("resize", updateMaxGridSize);
+    return () => {
+      window.removeEventListener("resize", updateMaxGridSize);
+    };
+  }, [gridSize]);
+
+  useEffect(() => {
+    updateMaxGridSize();
+  }, []);
 
   return (
     <div className="game-container">
@@ -228,6 +267,7 @@ const SnakeGame: React.FC = () => {
       {openSetting && (
         <GridSettingForm
           gridSize={gridSize}
+          maxGridSize={maxGridSize}
           onSubmit={handleSetGridSize}
           onCancel={() => setOpenSetting(false)}
         />

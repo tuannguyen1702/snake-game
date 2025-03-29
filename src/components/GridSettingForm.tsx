@@ -4,6 +4,8 @@ import { GridSize } from "../types";
 
 interface GridSettingFormProps {
   gridSize: GridSize;
+  maxGridSize?: GridSize;
+  minGridSize?: GridSize;
   onSubmit: (gridSize: GridSize) => void;
   onCancel?: () => void;
 }
@@ -12,6 +14,8 @@ const GridSettingForm: React.FC<GridSettingFormProps> = ({
   gridSize,
   onSubmit,
   onCancel,
+  maxGridSize,
+  minGridSize
 }) => {
   const [gridW, setGridW] = useState(gridSize.width);
   const [gridH, setGridH] = useState(gridSize.height);
@@ -27,8 +31,8 @@ const GridSettingForm: React.FC<GridSettingFormProps> = ({
         <label className="form-label">Width: </label>
         <input
           type="number"
-          min="5"
-          max="50"
+          min={minGridSize?.width || 5}
+          max={maxGridSize?.width || 50}
           value={gridW}
           onChange={(e) => setGridW(Number(e.target.value))}
         />
@@ -37,8 +41,8 @@ const GridSettingForm: React.FC<GridSettingFormProps> = ({
         <label className="form-label">Height: </label>
         <input
           type="number"
-          min="5"
-          max="50"
+          min={minGridSize?.height || 5}
+          max={maxGridSize?.height || 35}
           value={gridH}
           onChange={(e) => setGridH(Number(e.target.value))}
         />
